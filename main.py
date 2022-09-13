@@ -192,8 +192,8 @@ tetrisblocks = [  \
              [ 0,0,0 ,0,1,0,1,1, 0] \
              ]
 
-tetrisfield=[]
-
+rows, cols = (w+3, h+3)
+tetrisfield = [[0]*cols]*rows
 
 def rotated(arr):
 
@@ -256,94 +256,121 @@ def TetrisDrop( speed ) :
 
             # TODO detect if next draw will hit something if so then exit loop and save new playing field
 
-            # clear last position
-            # dont do this unless theres a change of movement to prevent flicker
+            p=0
+            for x in range(3):
+                for y in range(3):
+                    if( atcol + x >= 0 and atrow+y < h and atrow+y>=0 and atcol+x <w) :
+                        if( a[ p ] == 1 ) : 
+                            if( tetrisfield[atcol+x][atrow+y] == 1 ):
+                                dropped = True
 
-            if( prevcol != atcol or prevrow != atrow ) :
+            if( not dropped ) :
+                # clear last position
+                # dont do this unless theres a change of movement to prevent flicker
 
-#                for x in range(3):
-#                    for y in range(3):
-#                        #if( prevcol + x > 0 and prevrow+y>0) :
-#                        if( prevcol + x >= 0 and prevrow+y < h and prevrow+y>=0) :
-#                           picounicorn.set_pixel(prevcol + x , y+prevrow, 0, 0, 0 )
+                if( prevcol != atcol or prevrow != atrow ) :
 
-                p=0
-                for x in range(3):
-                    for y in range(3):
-                        if( prevcol + x >= 0 and prevrow+y < h and prevrow+y>=0) :
-                            if( prevblock[ p ] == 1 ) : 
-                                picounicorn.set_pixel(prevcol + x, y+prevrow, 0, 0, 0 )
-                        p = p + 1
+    #                for x in range(3):
+    #                    for y in range(3):
+    #                        #if( prevcol + x > 0 and prevrow+y>0) :
+    #                        if( prevcol + x >= 0 and prevrow+y < h and prevrow+y>=0) :
+    #                           picounicorn.set_pixel(prevcol + x , y+prevrow, 0, 0, 0 )
 
-                # draw block moved
-                p=0
-                for x in range(3):
-                    for y in range(3):
-                        if( atcol + x >= 0 and atrow+y < h and atrow+y>=0) :
-                            if( a[ p ] == 1 ) : 
-                                picounicorn.set_pixel(atcol + x, y+atrow, cr, cg, cb )
-                      #      else:
-                      #          picounicorn.set_pixel(atcol + x, y+atrow, 0, 0, 0 )
-                        p = p + 1
+                    p=0
+                    for x in range(3):
+                        for y in range(3):
+                            if( prevcol + x >= 0 and prevrow+y < h and prevrow+y>=0) :
+                                if( prevblock[ p ] == 1 ) : 
+                                    picounicorn.set_pixel(prevcol + x, y+prevrow, 0, 0, 0 )
+                            p = p + 1
 
-            prevrow= atrow
-            prevcol = atcol
-            prevblock=a
+                    # draw block moved
+                    p=0
+                    for x in range(3):
+                        for y in range(3):
+                            if( atcol + x >= 0 and atrow+y < h and atrow+y>=0) :
+                                if( a[ p ] == 1 ) : 
+                                    picounicorn.set_pixel(atcol + x, y+atrow, cr, cg, cb )
+                          #      else:
+                          #          picounicorn.set_pixel(atcol + x, y+atrow, 0, 0, 0 )
+                            p = p + 1
 
-            # rotate block
+                prevrow= atrow
+                prevcol = atcol
+                prevblock=a
 
-            if picounicorn.is_pressed(picounicorn.BUTTON_A): 
-                while  picounicorn.is_pressed(picounicorn.BUTTON_A): 
-                    pass
-                a = rotated(a)
+                # rotate block
 
-
-
-
-
-            # TODO detect edge of blocks to allow move right up to sides
-
-            if picounicorn.is_pressed(picounicorn.BUTTON_Y): 
-                while  picounicorn.is_pressed(picounicorn.BUTTON_Y): 
-                    pass
-
-                # There will always be something in the middle column so just check first and third
-                # colummns
-
-                if ( atrow < 5 or ( atrow == 6 and ( a[6] == 0 and a[7] == 0 and a[8] == 0 ) ) ):
-                    atrow = atrow + 1
+                if picounicorn.is_pressed(picounicorn.BUTTON_A): 
+                    while  picounicorn.is_pressed(picounicorn.BUTTON_A): 
+                        pass
+                    a = rotated(a)
 
 
-    #            if atrow > 4 :
-    #                atrow = 4
 
-            if picounicorn.is_pressed(picounicorn.BUTTON_X): 
-                while picounicorn.is_pressed(picounicorn.BUTTON_X): 
-                    pass
-                if ( atrow > 0 or ( atrow == 0 and ( a[0] == 0 and a[1] == 0 and a[2] == 0 ) ) ):
-                    atrow = atrow - 1
-                
-                #if atrow < 0 :
-                #    atrow = 0
 
-            # time to drop a down 
 
-            if time.ticks_diff(time.ticks_ms(), tickct) > speed:
-                atcol = atcol + 1
-                if atcol == 13 :
-                    dropped = True
-                tickct = time.ticks_ms()
-    
+                # TODO detect edge of blocks to allow move right up to sides
+
+                if picounicorn.is_pressed(picounicorn.BUTTON_Y): 
+                    while  picounicorn.is_pressed(picounicorn.BUTTON_Y): 
+                        pass
+
+                    # There will always be something in the middle column so just check first and third
+                    # colummns
+
+                    if ( atrow < 5 or ( atrow == 6 and ( a[6] == 0 and a[7] == 0 and a[8] == 0 ) ) ):
+                        atrow = atrow + 1
+
+
+        #            if atrow > 4 :
+        #                atrow = 4
+
+                if picounicorn.is_pressed(picounicorn.BUTTON_X): 
+                    while picounicorn.is_pressed(picounicorn.BUTTON_X): 
+                        pass
+                    if ( atrow > 0 or ( atrow == 0 and ( a[0] == 0 and a[1] == 0 and a[2] == 0 ) ) ):
+                        atrow = atrow - 1
+                    
+                    #if atrow < 0 :
+                    #    atrow = 0
+
+                # time to drop a down 
+
+                if time.ticks_diff(time.ticks_ms(), tickct) > speed:
+                    atcol = atcol + 1
+                    if atcol == 13 :
+                        dropped = True
+                    tickct = time.ticks_ms()
+   
+    print("pos")
+    print(atrow)
+    print(atcol)
     # TODO save where the current falling block is to the field map
+    p=0
+    for x in range(3):
+        for y in range(3):
+            if( atcol + x >= 0 and atrow+y < h and atrow+y>=0 and atcol+x<w) :
+                if( a[ p ] == 1 ) : 
+                    tetrisfield[atcol+x][atrow+y] = 1 
+            p = p + 1
+    
+    print(tetrisfield[0]i)
+    print(tetrisfield[1])
+    print(tetrisfield[2])
+    print(tetrisfield[3])
+    print(tetrisfield[4])
+    print(tetrisfield[5])
+    print(tetrisfield[6])
 
 
 def TetrisPlay() :
 
     # init the tetris playing field
 
-    rows, cols = (h, w)
-    tetrisfield = [[0]*cols]*rows
 
+   # tetrisfield = [[0]*cols]*rows
+    print(tetrisfield)
     
     # setup control display
     clearDisplay()
