@@ -19,8 +19,9 @@ w = picounicorn.get_width()
 h = picounicorn.get_height()
 
 def clearDisplay():
+   # except for the lines where the button labels are
 
-    for x in range(w):
+    for x in range(1,w-1):
         for y in range(h):
             picounicorn.set_pixel(x, y, 0, 0, 0)
 
@@ -175,26 +176,154 @@ def displayBattery() :
     print( voltage )
     print( percentage)
 
+    
+# block defs
 
-def TetrisPlay() :
-
-
-    # block defs
-
-    blocks = [  \
-             [ 0, 0, 1, 0, 0, 1, 0, 1, 1 ], \
+tetrisblocks = [  \
+             [ 0, 1, 0, 0, 1, 0, 0, 1, 1 ], \
              [ 1, 1, 1, 1, 1, 0, 1, 0, 0 ], \
              [ 1, 1, 0, 1, 0, 0, 1, 1, 0 ], \
              [ 1, 1, 1, 1, 0, 0, 1, 1, 1 ], \
-             [ 0, 0, 1, 0, 1, 1, 0, 0, 1 ], \
-             [ 0,0,1,0,0,1, 0,0,1], \
-             [ 1,0,0, 1,0,0, 1,1,0], \
+             [ 0, 1, 0, 0, 1, 1, 0, 1, 0 ], \
+             [ 0,1,0,0,1,0, 0,1,0], \
+             [ 0,1,0, 0,1,0, 0,0,0], \
              [ 0,0,0, 0,1,1, 0,1,1], \
-             [ 0,0,0,    0, 0, 0,     0,0,1 ], \
-             [ 0,0,0,      0,0,1,        0,0,1], \
-             [    0,0,0,      0,0,1,                0,1,1 ] \
+             [ 0,0,0,    0, 1, 0,     0,0,0 ], \
+             [ 0,0,0 ,0,1,0,1,1, 0] \
              ]
 
+tetrisfield=[]
+
+
+def rotated(arr):
+
+#1 a 2    3 b 1
+#b 5 c    d 5 a
+#3 d 4    4 c 2
+
+    new=[0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+    
+    new[0]=arr[6]
+    new[1]=arr[3]
+    new[2]=arr[0]
+
+    new[3]=arr[7]
+    new[4]=arr[4]
+    new[5]=arr[1]
+    
+    new[6]=arr[8]
+    new[7]=arr[5]
+    new[8]=arr[2]
+
+    return new
+
+
+def TetrisDrop( speed ) :
+    # drop a tetris block down until it hits something
+
+    # start off the field
+    x = -3
+    atrow = 2
+    atcol = 2
+    prevrow = 2
+    prevcol = 2
+
+    dropped=False
+    colour = random.randint( 0,4) 
+    if colour == 0 :
+        cr,cg,cb = 255,0,0
+    if colour == 1 :
+        cr,cg,cb = 0,255,0
+    if colour == 2 :
+        cr,cg,cb = 0,0,255
+    if colour == 3 :
+        cr,cg,cb = 128,0,255
+    if colour == 3 :
+        cr,cg,cb = 255,128,0
+    if colour == 4 :
+        cr,cg,cb = 0,128,255
+
+    ba=random.randint(0, 9 ) 
+    a=tetrisblocks[ba ] 
+    print( "Block" )
+    print(ba)
+    print(a)
+    tickct = 0
+    tickct = time.ticks_ms()
+    while( not dropped ) :
+        
+            p = 0
+
+            # detect if next draw will hit something
+
+            # clear last position
+            # dont do this unless there is a change of movement to prevent flicker
+
+            if( prevcol != atcol or prevrow != atrow ) :
+
+                for x in range(3):
+                    for y in range(3):
+                        if( prevcol + x > 0 ) :
+                           picounicorn.set_pixel(prevcol + x , y+prevrow, 0, 0, 0 )
+
+                # draw block moved
+
+                for x in range(3):
+                    for y in range(3):
+                        if( atcol + x > 0 and atrow+y < h) :
+                            if( a[ p ] == 1 ) : 
+                                picounicorn.set_pixel(atcol + x, y+atrow, cr, cg, cb )
+                            else:
+                                picounicorn.set_pixel(atcol + x, y+atrow, 0, 0, 0 )
+                        p = p + 1
+
+            prevrow= atrow
+            prevcol = atcol
+
+            # rotate block
+
+            if picounicorn.is_pressed(picounicorn.BUTTON_A): 
+                while  picounicorn.is_pressed(picounicorn.BUTTON_A): 
+                    pass
+                a = rotated(a)
+
+
+
+
+
+            # TODO detect edge of blocks to allow move right up to sides
+
+            if picounicorn.is_pressed(picounicorn.BUTTON_Y): 
+                while  picounicorn.is_pressed(picounicorn.BUTTON_Y): 
+                    pass
+                atrow = atrow + 1
+                if atrow > 4 :
+                    atrow = 4
+
+            if picounicorn.is_pressed(picounicorn.BUTTON_X): 
+                while picounicorn.is_pressed(picounicorn.BUTTON_X): 
+                    pass
+                atrow = atrow - 1
+                
+                if atrow < 0 :
+                    atrow = 0
+
+            # time to drop a down 
+
+            if time.ticks_diff(time.ticks_ms(), tickct) > speed:
+                atcol = atcol + 1
+                if atcol == 13 :
+                    dropped = True
+                tickct = time.ticks_ms()
+
+
+
+def TetrisPlay() :
+
+    # init the tetris playing field
+
+    rows, cols = (h, w)
+    tetrisfield = [[0]*cols]*rows
 
     
     # setup control display
@@ -205,26 +334,26 @@ def TetrisPlay() :
     LightButton( "A" )
 
     while not picounicorn.is_pressed(picounicorn.BUTTON_B): 
-
-        for a in blocks :
-            p = 0
-            colour = random.randint( 0,3 ) 
-            cr = 0
-            cg = 0
-            cb = 255
-            if colour == 0 :
-                cr = 255
-            if colour == 1 :
-                cg = 255
-
-            for x in range(3):
-                for y in range(3):
-                    if( a[ p ] == 1 ) : 
-                        picounicorn.set_pixel(5+x, y+2, cr, cg, cb )
-                    else:
-                        picounicorn.set_pixel(5+x, y+2, 0, 0, 0 )
-                    p = p + 1
-            time.sleep(0.5)
+        TetrisDrop( 500 )
+    #    for a in tetrisblocks :
+    #        p = 0
+    #        colour = random.randint( 0,3 ) 
+    #        cr = 0
+    #        cg = 0
+    #        cb = 255
+    #        if colour == 0 :
+    #            cr = 255
+    #        if colour == 1 :
+    #            cg = 255
+#
+#            for x in range(3):
+#                for y in range(3):
+#                    if( a[ p ] == 1 ) : 
+#                        picounicorn.set_pixel(5+x, y+2, cr, cg, cb )
+#                    else:
+#                        picounicorn.set_pixel(5+x, y+2, 0, 0, 0 )
+#                    p = p + 1
+#            time.sleep(0.5)
 
 
 gameselect = 0
