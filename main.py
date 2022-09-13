@@ -254,23 +254,24 @@ def TetrisDrop( speed ) :
         
             p = 0
 
-            # detect if next draw will hit something
+            # TODO detect if next draw will hit something if so then exit loop and save new playing field
 
             # clear last position
-            # dont do this unless there is a change of movement to prevent flicker
+            # dont do this unless theres a change of movement to prevent flicker
 
             if( prevcol != atcol or prevrow != atrow ) :
 
                 for x in range(3):
                     for y in range(3):
-                        if( prevcol + x > 0 ) :
+                        #if( prevcol + x > 0 and prevrow+y>0) :
+                        if( prevcol + x >= 0 and prevrow+y < h and prevrow+y>=0) :
                            picounicorn.set_pixel(prevcol + x , y+prevrow, 0, 0, 0 )
 
                 # draw block moved
 
                 for x in range(3):
                     for y in range(3):
-                        if( atcol + x > 0 and atrow+y < h) :
+                        if( atcol + x >= 0 and atrow+y < h and atrow+y>=0) :
                             if( a[ p ] == 1 ) : 
                                 picounicorn.set_pixel(atcol + x, y+atrow, cr, cg, cb )
                             else:
@@ -296,17 +297,25 @@ def TetrisDrop( speed ) :
             if picounicorn.is_pressed(picounicorn.BUTTON_Y): 
                 while  picounicorn.is_pressed(picounicorn.BUTTON_Y): 
                     pass
-                atrow = atrow + 1
-                if atrow > 4 :
-                    atrow = 4
+
+                # There will always be something in the middle column so just check first and third
+                # colummns
+
+                if ( atrow < 5 or ( atrow == 6 and ( a[6] == 0 and a[7] == 0 and a[8] == 0 ) ) ):
+                    atrow = atrow + 1
+
+
+    #            if atrow > 4 :
+    #                atrow = 4
 
             if picounicorn.is_pressed(picounicorn.BUTTON_X): 
                 while picounicorn.is_pressed(picounicorn.BUTTON_X): 
                     pass
-                atrow = atrow - 1
+                if ( atrow > 0 or ( atrow == 0 and ( a[0] == 0 and a[1] == 0 and a[2] == 0 ) ) ):
+                    atrow = atrow - 1
                 
-                if atrow < 0 :
-                    atrow = 0
+                #if atrow < 0 :
+                #    atrow = 0
 
             # time to drop a down 
 
@@ -315,7 +324,8 @@ def TetrisDrop( speed ) :
                 if atcol == 13 :
                     dropped = True
                 tickct = time.ticks_ms()
-
+    
+    # TODO save where the current falling block is to the field map
 
 
 def TetrisPlay() :
@@ -335,25 +345,14 @@ def TetrisPlay() :
 
     while not picounicorn.is_pressed(picounicorn.BUTTON_B): 
         TetrisDrop( 500 )
-    #    for a in tetrisblocks :
-    #        p = 0
-    #        colour = random.randint( 0,3 ) 
-    #        cr = 0
-    #        cg = 0
-    #        cb = 255
-    #        if colour == 0 :
-    #            cr = 255
-    #        if colour == 1 :
-    #            cg = 255
-#
-#            for x in range(3):
-#                for y in range(3):
-#                    if( a[ p ] == 1 ) : 
-#                        picounicorn.set_pixel(5+x, y+2, cr, cg, cb )
-#                    else:
-#                        picounicorn.set_pixel(5+x, y+2, 0, 0, 0 )
-#                    p = p + 1
-#            time.sleep(0.5)
+
+        # TODO detect is a line is complete, if so then remove it and drop everything down,
+        # redrawing the playing field on display
+
+        # TODO After so many rows are removed, speed the game up
+        # TODO if the top row or two has anything in it, the playing field is full up so game over
+        # TODO high score is how long the game has run for
+        # TODO display highscore table
 
 
 gameselect = 0
@@ -437,6 +436,9 @@ while 1 :
         if gameselect == 0 :
             TetrisPlay()
         clearDisplay()
+        NoButton("Y")
+        NoButton("X")
+        NoButton("B")
 
 
 # Display a rainbow across Pico Unicorn
