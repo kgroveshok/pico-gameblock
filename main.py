@@ -261,25 +261,34 @@ def TetrisDrop( speed ) :
 
             if( prevcol != atcol or prevrow != atrow ) :
 
+#                for x in range(3):
+#                    for y in range(3):
+#                        #if( prevcol + x > 0 and prevrow+y>0) :
+#                        if( prevcol + x >= 0 and prevrow+y < h and prevrow+y>=0) :
+#                           picounicorn.set_pixel(prevcol + x , y+prevrow, 0, 0, 0 )
+
+                p=0
                 for x in range(3):
                     for y in range(3):
-                        #if( prevcol + x > 0 and prevrow+y>0) :
                         if( prevcol + x >= 0 and prevrow+y < h and prevrow+y>=0) :
-                           picounicorn.set_pixel(prevcol + x , y+prevrow, 0, 0, 0 )
+                            if( prevblock[ p ] == 1 ) : 
+                                picounicorn.set_pixel(prevcol + x, y+prevrow, 0, 0, 0 )
+                        p = p + 1
 
                 # draw block moved
-
+                p=0
                 for x in range(3):
                     for y in range(3):
                         if( atcol + x >= 0 and atrow+y < h and atrow+y>=0) :
                             if( a[ p ] == 1 ) : 
                                 picounicorn.set_pixel(atcol + x, y+atrow, cr, cg, cb )
-                            else:
-                                picounicorn.set_pixel(atcol + x, y+atrow, 0, 0, 0 )
+                      #      else:
+                      #          picounicorn.set_pixel(atcol + x, y+atrow, 0, 0, 0 )
                         p = p + 1
 
             prevrow= atrow
             prevcol = atcol
+            prevblock=a
 
             # rotate block
 
